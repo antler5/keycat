@@ -122,6 +122,75 @@ impl Analyzer {
                 };
                 stats[amount.metric] += freq as f32 * amount.amount;
             }
+
+            let desire_positions: [[usize; 2]; 27] = [
+               [10,14], // 371 248
+               [11,52], // 830 801
+               [32,45], // 48 26
+               [12,45], // 51 26
+               [12,19], // 51 37
+               [13,47], // 286 571
+               [15,17], // 846 357
+               [19,32], // 37 84
+               [40,22], // 83 85
+               [23,24], // 406 305
+               [23,46], // 406 46
+               [24,43], // 305 35
+               [40,51], // 83 81
+               [26,51], // 61 81
+               [27,32], // 408 84
+               [28,31], // 71 28
+               [38,33], // 835 831
+               [38,33], // 835 831
+               // [38,43], // 835 35
+               // [33,36], // 831 31
+               [19,34], // 37 307
+               [35,50], // 24 86
+               [36,42], // 31 57
+               [50,42], // 86 57
+               [35,36], // 24 31
+               [41,22], // 805 85
+               [43,46], // 35 46
+               [50,44], // 86 806
+               [48,9]   // 351 246
+            ];
+
+            let desire_bindings = [
+              ['u', 'o'],
+              ['k', 'v'],
+              ['w', 'm'],
+              ['j', 'k'],
+              ['g', 'h'],
+              ['n', 'm'],
+              ['p', 'u'],
+              ['c', 'v'],
+              ['q', 'p'],
+              [',', '.'],
+              [';', '\'']
+            ];
+
+            for v in l.nstroke_chars(ns) {
+                let c = &self.corpus.char_list[v][0];
+                let mut score = 0;
+                for lst in desire_bindings.iter().filter(|&x| x.contains(c)) {
+                    // let positions = lst.map(|x| l.0[self.corpus.char_list.iter().position(|y| y[0] == x).unwrap()]);
+                    for candidate_char in lst {
+                        if let Some(idx) = self.corpus.char_list.iter().position(|y| y[0] == *candidate_char) {
+                            if l.0.len() > idx {
+                                let pos = l.0[idx];
+                                for desire_set in desire_positions.iter().filter(|x| x.contains(&v)) {
+                                    if candidate_char != c && desire_set.contains(&pos) {
+                                        score = score + 10000
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    // // println!("v: {}, c: {}, score: {:?}", v, c, score);
+                }
+                stats[0] += score as f32;
+            }
+            // panic!();
         }
     }
 
